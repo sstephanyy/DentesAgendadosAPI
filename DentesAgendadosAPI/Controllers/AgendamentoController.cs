@@ -14,7 +14,7 @@ namespace DentesAgendadosAPI.Controllers
 
         public AgendamentoController(DataContext context)
         {
-            _context = context;  
+            _context = context;   
         }
 
 
