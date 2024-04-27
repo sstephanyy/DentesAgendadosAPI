@@ -1,4 +1,5 @@
-﻿using DentesAgendadosAPI.Data;
+﻿using DentesAgendadosAPI.Core.IRepositories;
+using DentesAgendadosAPI.Data;
 using DentesAgendadosAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,25 +11,25 @@ namespace DentesAgendadosAPI.Controllers
     public class AgendamentoController : ControllerBase
     {
 
-        private readonly DataContext _context;
+        private readonly IUnitOfWork _unityOfWork;
 
-        public AgendamentoController(DataContext context)
+        public AgendamentoController(IUnitOfWork unityOfWork)
         {
-            _context = context;   
+            _unityOfWork = unityOfWork;   
         }
 
 
         [HttpGet]
         public async Task<IActionResult> PegarTodasConsultas()
         {
-            return Ok(await _context.Agendamentos.ToListAsync());
+            return Ok(await _unityOfWork.Agendamentos.PegarTodos());
 
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> PegarConsulta(int id)
         {
-            var consulta = await _context.Agendamentos.FirstOrDefaultAsync(x => x.Id == id);
+            var consulta = await _unityOfWork.Agendamentos.PegarPorId(id);
 
             if (consulta == null)
             {
@@ -41,27 +42,22 @@ namespace DentesAgendadosAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> CriarConsulta(Agendamento consulta)
         {
-            _context.Agendamentos.Add(consulta);
-            await _context.SaveChangesAsync();
+            await _unityOfWork.Agendamentos.Adicionar(consulta);
+            await _unityOfWork.CompleteAsync();
             return Ok();
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> AtualizarConsulta(int id, Agendamento request)
         {
-            var consulta = await _context.Agendamentos.FindAsync(id);
+            var consulta = await _unityOfWork.Agendamentos.PegarPorId(id);
             if (consulta == null)
             {
                 return NotFound("Desculpa, mas essa consulta ainda não existe!!");
             }
 
-            consulta.NomeDentista = request.NomeDentista;
-            consulta.NomePaciente = request.NomePaciente;
-            consulta.TipoConsulta = request.TipoConsulta;
-            consulta.Status = request.Status;
-            consulta.DataConsulta = request.DataConsulta;
-
-            await _context.SaveChangesAsync();
+            await _unityOfWork.Agendamentos.Atualizar(request);
+            await _unityOfWork.CompleteAsync();
 
             return Ok(consulta);
 
@@ -71,15 +67,15 @@ namespace DentesAgendadosAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletarConsulta(int id)
         {
-            var consulta = await _context.Agendamentos.FirstOrDefaultAsync(x => x.Id == id);
+            var consulta = await _unityOfWork.Agendamentos.PegarPorId(id);
 
             if (consulta == null)
             {
                 return NotFound("Desculpa, mas essa consulta ainda não existe!!");
             }
 
-            _context.Agendamentos.Remove(consulta);
-            await _context.SaveChangesAsync();
+            await _unityOfWork.Agendamentos.Deletar(id);
+            await _unityOfWork.CompleteAsync();
 
             return NoContent();
 
