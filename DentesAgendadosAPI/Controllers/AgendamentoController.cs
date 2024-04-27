@@ -48,18 +48,25 @@ namespace DentesAgendadosAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> AtualizarConsulta(int id, Agendamento request)
+        public async Task<IActionResult> AtualizarConsulta(int id, Agendamento agendamento)
         {
             var consulta = await _unityOfWork.Agendamentos.PegarPorId(id);
+
             if (consulta == null)
             {
                 return NotFound("Desculpa, mas essa consulta ainda não existe!!");
             }
 
-            await _unityOfWork.Agendamentos.Atualizar(request);
+            consulta.NomeDentista = agendamento.NomeDentista;
+            consulta.NomePaciente = agendamento.NomePaciente;
+            consulta.TipoConsulta = agendamento.TipoConsulta;
+            consulta.Status = agendamento.Status;
+            consulta.DataConsulta = agendamento.DataConsulta;
+
+            await _unityOfWork.Agendamentos.Atualizar(consulta);
             await _unityOfWork.CompleteAsync();
 
-            return Ok(consulta);
+            return NoContent();
 
         }
 
