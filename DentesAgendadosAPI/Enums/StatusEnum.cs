@@ -4,6 +4,7 @@
     {
         Confirmado,
         Cancelado,
-        ConfirmaçãoPendente
+        ConfirmaçãoPendente,
+        Realizado
     }
 }
