@@ -9,6 +9,7 @@ namespace DentesAgendadosAPI.Models
         public DateTime DataConsulta { get; set; }
         public string NomePaciente { get; set; }
         public string NomeDentista { get; set; }
+        public string NumeroPaciente { get; set; }
         // Tipo de consulta (consulta de rotina, tratamento específico, limpeza, etc.)
         public string TipoConsulta { get; set; }
 
